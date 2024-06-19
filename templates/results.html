@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>결과</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.3.2/dist/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>결과</h1>
+        <ul id="results-content">
+            {% for question in questions %}
+            <li>{{ question.label }} - {{ results[question.id] }} - {{ question.opposite }}</li>
+            {% endfor %}
+        </ul>
+        <h2>당신의 독서 성향: {{ user_character }}</h2>
+        <h3>함께 읽으면 더 행복해질 캐릭터: {{ complementary_character }}</h3>
+        <div class="buttons">
+            <button onclick="saveAsImage()">Save as Image</button>
+            <button onclick="shareOnInstagram()">Share on Instagram</button>
+        </div>
+        <a href="/">다시 테스트하기</a>
+    </div>
+    <script>
+        function saveAsImage() {
+            html2canvas(document.querySelector("#results-content")).then(canvas => {
+                let link = document.createElement('a');
+                link.download = 'results.png';
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        }
+
+        function shareOnInstagram() {
+            html2canvas(document.querySelector("#results-content")).then(canvas => {
+                let dataUrl = canvas.toDataURL("image/png");
+                let blob = dataURItoBlob(dataUrl);
+                let file = new File([blob], "results.png", { type: "image/png" });
+                let formData = new FormData();
+                formData.append("file", file);
+
+                // Open Instagram share URL (Instagram doesn't support direct image upload via URL, typically need to use mobile app)
+                alert("You can now share the image manually on Instagram.");
+                // Provide link to download the image
+                let link = document.createElement('a');
+                link.download = 'results.png';
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        }
+
+        function dataURItoBlob(dataURI) {
+            let byteString = atob(dataURI.split(',')[1]);
+            let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            let ab = new ArrayBuffer(byteString.length);
+            let ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mimeString });
+        }
+    </script>
+</body>
+</html>
